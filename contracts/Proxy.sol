@@ -1,12 +1,41 @@
-pragma solidity 0.8.14;
+pragma solidity 0.8.10;
 import "./StorageSlot.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract Proxy is Ownable{
+contract Proxy{
     bytes32 private constant _IMPL_SLOT =
         bytes32(uint256(keccak256("eip1967.proxy.implementation")) - 1);
     
-    function setImplementation(address implementation) public onlyOwner {
+     bytes32 private constant _ADMIN_SLOT =
+        bytes32(uint256(keccak256("eip1967.proxy.admin")) - 1);
+
+    constructor(address _owner, address _impl) {
+        _admin(_owner);
+        _implementation(_impl);
+    }
+
+    function _admin(address admin) internal {
+        StorageSlot.setAddressAt(_ADMIN_SLOT, admin);
+    }
+
+    function _implementation(address implementation) internal {
+        StorageSlot.setAddressAt(_IMPL_SLOT, implementation);
+    }
+
+    function setAdmin(address admin) public onlyAdmin{
+         StorageSlot.setAddressAt(_ADMIN_SLOT, admin);
+    }
+
+    function getAdmin() public view returns(address) {
+        return StorageSlot.getAddressAt(_ADMIN_SLOT);
+    }
+
+    modifier onlyAdmin(){
+        require(msg.sender == getAdmin(), 'Invalid Admin!');
+        _;
+    }
+    
+    function setImplementation(address implementation) public onlyAdmin{
         StorageSlot.setAddressAt(_IMPL_SLOT, implementation);
     }
 
