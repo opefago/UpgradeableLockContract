@@ -45,7 +45,7 @@ describe("LockV2", async () => {
         await lock2.deposit(BigNumber.from(10), {value: 100});
         await expect(lock2.forceWithdraw())
         .to.emit(lock2, 'Withdraw')
-        .withArgs(owner, 100 * 1/50);
+        .withArgs(owner.address, 100 - 100 * 1/50);
     });
 
     it("Should withdraw from wallet with no penalty if time has elapsed", async () => {
@@ -53,8 +53,8 @@ describe("LockV2", async () => {
 
         await ethers.provider.send('evm_increaseTime', [ 15 * 60]);
 
-        await expect(lock2.forceWithdraw())
+        await expect(await lock2.forceWithdraw())
         .to.emit(lock2, 'Withdraw')
-        .withArgs(owner, 100);
+        .withArgs(owner.address, 100);
     });
 });

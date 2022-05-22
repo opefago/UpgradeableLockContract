@@ -42,16 +42,17 @@ contract LockV2 {
 
         uint256 currentBalance = balances[msg.sender];
         uint256 penalty = 0;
-        if(duration[msg.sender] < block.timestamp){
+        if(duration[msg.sender] > block.timestamp){
             penalty = currentBalance * 1/50;
+            currentBalance = currentBalance - penalty;
         }
 
         balances[msg.sender] = 0;
         duration[msg.sender] = 0;
         address payable to = payable(msg.sender);
-        to.transfer(currentBalance - penalty);
+        to.transfer(currentBalance);
 
-        emit Withdraw(msg.sender, currentBalance - penalty);
+        emit Withdraw(msg.sender, currentBalance);
     }
 
     function withdrawTo(address payable _to) public {
