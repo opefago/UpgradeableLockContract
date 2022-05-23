@@ -57,4 +57,15 @@ describe("LockV2", async () => {
         .to.emit(lock2, 'Withdraw')
         .withArgs(owner.address, 100);
     });
+
+
+    it("Should transfer to another wallet with no penalty if time has elapsed", async () => {
+        await lock2.deposit(BigNumber.from(10), {value: 100});
+
+        await ethers.provider.send('evm_increaseTime', [ 15 * 60]);
+
+        await expect(await lock2.withdrawTo(addr1.address))
+        .to.emit(lock2, 'Withdraw')
+        .withArgs(addr1.address, 100);
+    });
 });
